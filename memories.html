@@ -246,6 +246,28 @@ const sizeMap = {
                 });
             }
 
+            function showLightbox() {
+                lightbox.classList.add('active');
+                lightboxImg.src = images[currentImageIndex].src;
+                lightboxCaption.textContent = images[currentImageIndex].caption;
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeLightbox() {
+                lightbox.classList.remove('active');
+                document.body.style.overflow = 'auto';
+            }
+
+            function nextImage() {
+                currentImageIndex = (currentImageIndex + 1) % images.length;
+                showLightbox();
+            }
+
+            function prevImage() {
+                currentImageIndex = (currentImageIndex - 1 + images.length) % images.length;
+                showLightbox();
+            }
+
             fetch(GITHUB_PHOTOS_API)
                 .then(response => {
                     if (!response.ok) {
@@ -274,28 +296,6 @@ const sizeMap = {
                     }));
 
                     renderCollage(orderedPhotoFiles);
-
-                    function showLightbox() {
-                        lightbox.classList.add('active');
-                        lightboxImg.src = images[currentImageIndex].src;
-                        lightboxCaption.textContent = images[currentImageIndex].caption;
-                        document.body.style.overflow = 'hidden';
-                    }
-
-                    function closeLightbox() {
-                        lightbox.classList.remove('active');
-                        document.body.style.overflow = 'auto';
-                    }
-
-                    function nextImage() {
-                        currentImageIndex = (currentImageIndex + 1) % images.length;
-                        showLightbox();
-                    }
-
-                    function prevImage() {
-                        currentImageIndex = (currentImageIndex - 1 + images.length) % images.length;
-                        showLightbox();
-                    }
 
                     closeBtn.addEventListener('click', closeLightbox);
                     nextBtn.addEventListener('click', nextImage);
