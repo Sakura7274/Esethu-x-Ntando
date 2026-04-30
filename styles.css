@@ -506,11 +506,17 @@ body {
     grid-row: span 2;
 }
 
+.collage-item {
+    overflow: hidden;
+}
+
 .collage-item img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    object-position: center center;
     display: block;
+    transform-origin: center center;
     transition: transform 0.3s ease;
 }
 
