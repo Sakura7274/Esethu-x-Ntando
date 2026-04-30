@@ -57,22 +57,67 @@ body {
 
 /* Hero Section */
 .hero {
-    background: linear-gradient(135deg, #ff6b9d 0%, #c44569 100%);
+    position: relative;
     color: white;
     padding: 8rem 2rem;
     text-align: center;
     margin-bottom: 3rem;
+    overflow: hidden;
+    min-height: 500px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255, 107, 157, 0.85) 0%, rgba(196, 69, 105, 0.85) 100%);
+    z-index: 1;
+}
+
+.hero-collage {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+}
+
+.hero-collage .collage-item {
+    position: absolute;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.2);
+    transform: rotate(0deg);
+    opacity: 0.85;
+}
+
+.hero-collage .collage-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
 }
 
 .hero-content h1 {
     font-size: 3rem;
     margin-bottom: 1rem;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
 }
 
 .hero-content p {
     font-size: 1.3rem;
     opacity: 0.95;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
 }
 
 /* About Section */
@@ -356,6 +401,17 @@ body {
 
 /* Responsive Design */
 @media (max-width: 768px) {
+    .hero {
+        min-height: 400px;
+        padding: 6rem 2rem;
+    }
+
+    .hero-collage {
+        background-size: 
+            200px 200px, 180px 180px, 190px 190px,
+            210px 210px, 185px 185px, 200px 200px;
+    }
+
     .hero-content h1 {
         font-size: 2rem;
     }
