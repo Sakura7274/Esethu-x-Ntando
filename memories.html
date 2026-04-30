@@ -229,8 +229,9 @@ const sizeMap = {
                     // Use background-image approach for better zoom control
                     collageItem.style.backgroundImage = `url(${file.download_url})`;
                     collageItem.style.backgroundPosition = focusPosition;
-                    collageItem.style.backgroundSize = zoomLevel < 100 ? 'contain' : `${zoomLevel}%`;
+                    collageItem.style.backgroundSize = zoomLevel <= 100 ? 'cover' : `${zoomLevel}%`;
                     collageItem.style.backgroundRepeat = 'no-repeat';
+                    collageItem.style.backgroundColor = '#000';
                     
                     // Add title for accessibility
                     collageItem.title = file.name;
@@ -270,69 +271,8 @@ const sizeMap = {
                         caption: file.name
                     }));
 
-                    // Create collage items with varying sizes and focus positions
-                    photoFiles.forEach((file, index) => {
-                        const collageItem = document.createElement('div');
-                        collageItem.className = 'collage-item';
-                        
-                        const fileName = file.name.toLowerCase();
-                        const customSize = normalizedSizeMap[fileName];
-                        const sizeClass = customSize || ['size-1', 'size-2', 'size-1', 'size-3', 'size-2', 'size-1', 'size-2', 'size-3'][index % 8];
-                        collageItem.classList.add(sizeClass);
-
-                        // Determine focus using direct map, filename hints, or fallback pattern.
-                        let focusPosition = normalizedFocusMap[fileName] || null;
-                        let zoomLevel = normalizedZoomMap[fileName] || 100;
-
-                        if (!focusPosition) {
-                            // Check filename for focus hints
-                            if (fileName.includes('focus_top') || fileName.includes('_top')) {
-                                focusPosition = 'top';
-                            } else if (fileName.includes('focus_bottom') || fileName.includes('_bottom')) {
-                                focusPosition = 'bottom';
-                            } else if (fileName.includes('focus_left') || fileName.includes('_left')) {
-                                focusPosition = 'left';
-                            } else if (fileName.includes('focus_right') || fileName.includes('_right')) {
-                                focusPosition = 'right';
-                            } else if (fileName.includes('focus_center') || fileName.includes('_center')) {
-                                focusPosition = 'center';
-                            } else {
-                                // Use pattern for photos without specific focus hints
-                                const focusPositions = [
-                                    'center',      // default center focus
-                                    'top',         // focus on top of photo
-                                    'bottom',      // focus on bottom of photo
-                                    'left',        // focus on left side
-                                    'right',       // focus on right side
-                                    '20% 80%',     // focus on bottom-left area
-                                    '80% 20%',     // focus on top-right area
-                                    'center top'   // focus on center-top
-                                ];
-                                focusPosition = focusPositions[index % focusPositions.length];
-                            }
-                        }
-
-                        if (!focusPosition) {
-                            focusPosition = 'center';
-                        }
-
-                        // Use background-image approach for better zoom control
-                        collageItem.style.backgroundImage = `url(${file.download_url})`;
-                        collageItem.style.backgroundPosition = focusPosition;
-                        collageItem.style.backgroundSize = zoomLevel < 100 ? 'contain' : `${zoomLevel}%`;
-                        collageItem.style.backgroundRepeat = 'no-repeat';
-                        
-                        // Add title for accessibility
-                        collageItem.title = file.name;
-                        
-                        collageItem.onclick = function(e) {
-                            e.stopPropagation();
-                            currentImageIndex = index;
-                            showLightbox();
-                        };
-
-                        collageContainer.appendChild(collageItem);
-                    });
+                    const orderedPhotoFiles = applyManualOrder(photoFiles);
+                    renderCollage(orderedPhotoFiles);
 
                     function showLightbox() {
                         lightbox.classList.add('active');
