@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Collage Editor - Ntando & You</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .editor-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .editor-controls {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            margin-bottom: 2rem;
+        }
+
+        .control-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .control-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            color: #c44569;
+        }
+
+        .control-group input, .control-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            font-size: 1rem;
+        }
+
+        .focus-sliders {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .focus-sliders input {
+            width: 100%;
+        }
+
+        .size-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .size-btn {
+            flex: 1;
+            padding: 0.75rem;
+            border: 2px solid #ddd;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .size-btn.active {
+            border-color: #c44569;
+            background: #ffe8ed;
+            color: #c44569;
+        }
+
+        .size-btn:hover {
+            border-color: #c44569;
+        }
+
+        .save-btn {
+            background: #c44569;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            margin-top: 1rem;
+            transition: background 0.3s ease;
+        }
+
+        .save-btn:hover {
+            background: #a53f61;
+        }
+
+        .collage-preview {
+            background: #f9f9f9;
+            padding: 2rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+        }
+
+        .collage-preview h3 {
+            text-align: center;
+            color: #c44569;
+            margin-bottom: 1rem;
+        }
+
+        .selected-photo {
+            border: 3px solid #c44569 !important;
+            box-shadow: 0 0 20px rgba(196, 69, 105, 0.3) !important;
+        }
+
+        .photo-info {
+            background: #fff;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-top: 1rem;
+            border-left: 4px solid #c44569;
+        }
+
+        .code-output {
+            background: #f5f5f5;
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            margin-top: 1rem;
+            white-space: pre-wrap;
+            border: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">💕 Collage Editor</div>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="memories.html">Memories</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="editor-container">
+        <h1>Collage Editor</h1>
+        <p>Use this tool to adjust photo focus and positioning in your memories collage.</p>
+
+        <div class="editor-controls">
+            <div class="control-group">
+                <label>Selected Photo:</label>
+                <input type="text" id="selected-photo-name" readonly placeholder="Click a photo below to select">
+            </div>
+
+            <div class="control-group">
+                <label>Photo Size:</label>
+                <div class="size-buttons">
+                    <button class="size-btn" data-size="size-1">Normal (1x1)</button>
+                    <button class="size-btn" data-size="size-2">Wide (2x1)</button>
+                    <button class="size-btn" data-size="size-3">Tall (1x2)</button>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label>Focus Position:</label>
+                <div class="focus-sliders">
+                    <div>
+                        <label>Horizontal (%): <span id="x-value">50</span></label>
+                        <input type="range" id="focus-x" min="0" max="100" value="50">
+                    </div>
+                    <div>
+                        <label>Vertical (%): <span id="y-value">50</span></label>
+                        <input type="range" id="focus-y" min="0" max="100" value="50">
+                    </div>
+                </div>
+            </div>
+
+            <button class="save-btn" id="save-changes">Save Changes</button>
+        </div>
+
+        <div class="collage-preview">
+            <h3>Collage Preview - Click photos to edit</h3>
+            <div class="collage-container" id="collage-preview"></div>
+        </div>
+
+        <div class="photo-info">
+            <h3>Generated Code</h3>
+            <p>Copy this code into your <code>memories.html</code> file to apply the changes:</p>
+            <div class="code-output" id="code-output"></div>
+        </div>
+    </div>
+
+    <script>
+        // Editor state
+        let selectedPhoto = null;
+        let photoData = {};
+        let photoOrder = [];
+
+        // DOM elements
+        const selectedPhotoName = document.getElementById('selected-photo-name');
+        const focusX = document.getElementById('focus-x');
+        const focusY = document.getElementById('focus-y');
+        const xValue = document.getElementById('x-value');
+        const yValue = document.getElementById('y-value');
+        const sizeButtons = document.querySelectorAll('.size-btn');
+        const saveBtn = document.getElementById('save-changes');
+        const collagePreview = document.getElementById('collage-preview');
+        const codeOutput = document.getElementById('code-output');
+
+        // GitHub API details
+        const GITHUB_REPO_OWNER = 'Sakura7274';
+        const GITHUB_REPO_NAME = 'Esethu-x-Ntando';
+        const GITHUB_PHOTOS_API = `https://api.github.com/repos/${GITHUB_REPO_OWNER}/${GITHUB_REPO_NAME}/contents/photos`;
+        const supportedPhotoExtensions = ['jpg', 'jpeg', 'png', 'webp', 'svg'];
+
+        // Initialize editor
+        async function initEditor() {
+            try {
+                const response = await fetch(GITHUB_PHOTOS_API);
+                if (!response.ok) throw new Error('Failed to fetch photos');
+
+                const files = await response.json();
+                const photoFiles = files.filter(file =>
+                    file.type === 'file' &&
+                    supportedPhotoExtensions.some(ext => file.name.toLowerCase().endsWith(ext))
+                );
+
+                // Sort photos consistently
+                photoFiles.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }));
+
+                // Initialize photo data
+                photoFiles.forEach((file, index) => {
+                    photoData[file.name] = {
+                        size: ['size-1', 'size-2', 'size-1', 'size-3', 'size-2', 'size-1', 'size-2', 'size-3'][index % 8],
+                        focusX: 50,
+                        focusY: 50,
+                        src: file.download_url
+                    };
+                });
+
+                photoOrder = photoFiles.map(file => file.name);
+
+                renderCollage();
+                updateCodeOutput();
+
+            } catch (error) {
+                console.error('Error initializing editor:', error);
+                collagePreview.innerHTML = '<p>Error loading photos. Please try again.</p>';
+            }
+        }
+
+        // Render collage preview
+        function renderCollage() {
+            collagePreview.innerHTML = '';
+
+            photoOrder.forEach((photoName, index) => {
+                const data = photoData[photoName];
+                if (!data) return;
+
+                const item = document.createElement('div');
+                item.className = `collage-item ${data.size}`;
+                item.dataset.photoName = photoName;
+
+                const img = document.createElement('img');
+                img.src = data.src;
+                img.alt = photoName;
+                img.style.objectPosition = `${data.focusX}% ${data.focusY}%`;
+
+                item.appendChild(img);
+                item.onclick = () => selectPhoto(photoName);
+
+                collagePreview.appendChild(item);
+            });
+        }
+
+        // Select a photo for editing
+        function selectPhoto(photoName) {
+            selectedPhoto = photoName;
+            selectedPhotoName.value = photoName;
+
+            // Update UI
+            document.querySelectorAll('.collage-item').forEach(item => {
+                item.classList.remove('selected-photo');
+            });
+            document.querySelector(`[data-photo-name="${photoName}"]`).classList.add('selected-photo');
+
+            // Update controls
+            const data = photoData[photoName];
+            focusX.value = data.focusX;
+            focusY.value = data.focusY;
+            xValue.textContent = data.focusX;
+            yValue.textContent = data.focusY;
+
+            sizeButtons.forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.size === data.size);
+            });
+        }
+
+        // Update focus position
+        function updateFocus() {
+            if (!selectedPhoto) return;
+
+            const data = photoData[selectedPhoto];
+            data.focusX = parseInt(focusX.value);
+            data.focusY = parseInt(focusY.value);
+
+            xValue.textContent = data.focusX;
+            yValue.textContent = data.focusY;
+
+            // Update preview
+            const item = document.querySelector(`[data-photo-name="${selectedPhoto}"] img`);
+            if (item) {
+                item.style.objectPosition = `${data.focusX}% ${data.focusY}%`;
+            }
+        }
+
+        // Change photo size
+        function changeSize(size) {
+            if (!selectedPhoto) return;
+
+            photoData[selectedPhoto].size = size;
+
+            // Update UI
+            sizeButtons.forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.size === size);
+            });
+
+            // Update preview
+            const item = document.querySelector(`[data-photo-name="${selectedPhoto}"]`);
+            if (item) {
+                item.className = `collage-item ${size} selected-photo`;
+            }
+        }
+
+        // Generate code output
+        function updateCodeOutput() {
+            const focusMap = {};
+            const manualPhotoOrder = [];
+
+            photoOrder.forEach(photoName => {
+                const data = photoData[photoName];
+                if (data.focusX !== 50 || data.focusY !== 50) {
+                    focusMap[photoName] = `${data.focusX}% ${data.focusY}%`;
+                }
+                manualPhotoOrder.push(photoName);
+            });
+
+            const code = `// Manually configure the exact order of photos here.
+const manualPhotoOrder = [
+${manualPhotoOrder.map(name => `    '${name}'`).join(',\n')}
+];
+
+// Direct focus map for precise cropping control.
+// Use exact filename keys and any valid CSS object-position value.
+const focusMap = {
+${Object.entries(focusMap).map(([key, value]) => `    '${key}': '${value}'`).join(',\n')}
+};`;
+
+            codeOutput.textContent = code;
+        }
+
+        // Event listeners
+        focusX.addEventListener('input', updateFocus);
+        focusY.addEventListener('input', updateFocus);
+
+        sizeButtons.forEach(btn => {
+            btn.addEventListener('click', () => changeSize(btn.dataset.size));
+        });
+
+        saveBtn.addEventListener('click', () => {
+            updateCodeOutput();
+            alert('Code generated! Copy it from the "Generated Code" section below.');
+        });
+
+        // Initialize
+        initEditor();
+    </script>
+</body>
+</html>
