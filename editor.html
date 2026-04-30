@@ -175,7 +175,7 @@
                 </div>
             </div>
 
-            <button class="save-btn" id="save-changes">Save Changes</button>
+            <button class="save-btn" id="save-changes">Copy Code</button>
         </div>
 
         <div class="collage-preview">
@@ -184,8 +184,8 @@
         </div>
 
         <div class="photo-info">
-            <h3>Generated Code</h3>
-            <p>Copy this code into your <code>memories.html</code> file to apply the changes:</p>
+            <h3>Generated Code (Updates Live)</h3>
+            <p>The code below updates automatically as you make changes. Click "Copy Code" to copy it to your clipboard, then paste it into your <code>memories.html</code> file.</p>
             <div class="code-output" id="code-output"></div>
         </div>
     </div>
@@ -312,6 +312,9 @@
             if (item) {
                 item.style.objectPosition = `${data.focusX}% ${data.focusY}%`;
             }
+
+            // Update code output live
+            updateCodeOutput();
         }
 
         // Change photo size
@@ -330,6 +333,9 @@
             if (item) {
                 item.className = `collage-item ${size} selected-photo`;
             }
+
+            // Update code output live
+            updateCodeOutput();
         }
 
         // Generate code output
@@ -368,8 +374,19 @@ ${Object.entries(focusMap).map(([key, value]) => `    '${key}': '${value}'`).joi
         });
 
         saveBtn.addEventListener('click', () => {
-            updateCodeOutput();
-            alert('Code generated! Copy it from the "Generated Code" section below.');
+            const code = codeOutput.textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                alert('Code copied to clipboard! Paste it into memories.html');
+            }).catch(() => {
+                // Fallback for browsers that don't support clipboard API
+                const textArea = document.createElement('textarea');
+                textArea.value = code;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                alert('Code copied to clipboard! Paste it into memories.html');
+            });
         });
 
         // Initialize
