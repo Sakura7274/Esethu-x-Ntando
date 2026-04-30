@@ -488,6 +488,7 @@ body {
     max-width: 1400px;
     margin: 0 auto;
     grid-auto-rows: 200px;
+    grid-auto-flow: dense;
 }
 
 .collage-item {
