@@ -488,14 +488,7 @@ body {
     max-width: 1400px;
     margin: 0 auto;
     grid-auto-rows: 200px;
-    grid-auto-flow: dense;
-}
 
-.collage-item {
-    position: relative;
-    overflow: hidden;
-    border-radius: 15px;
-    cursor: pointer;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     transition: transform 0.3s ease, box-shadow 0.3s ease, filter 0.3s ease;
     grid-column: span 1;

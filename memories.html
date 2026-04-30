@@ -71,10 +71,14 @@
             // Direct focus map for precise cropping control.
             // Use exact filename keys and any valid CSS object-position value.
             const focusMap = {
-               'photo1.jpg': 'center top',      
-               'photo6.jpg': 'center'
-               'photo9.jpg': '20% 80%'
+                'photo1.jpg': 'center top',      
+                'photo6.jpg': 'center',
+                'photo9.jpg': '20% 80%'
             };
+
+            const normalizedFocusMap = Object.fromEntries(
+                Object.entries(focusMap).map(([key, value]) => [key.toLowerCase(), value])
+            );
 
             fetch(GITHUB_PHOTOS_API)
                 .then(response => {
@@ -113,9 +117,7 @@
 
                         // Determine focus using direct map, filename hints, or fallback pattern.
                         const fileName = file.name.toLowerCase();
-                        const mappedFocus = Object.keys(focusMap)
-                            .find(key => key.toLowerCase() === fileName);
-                        let focusPosition = mappedFocus ? focusMap[mappedFocus] : null;
+                        let focusPosition = normalizedFocusMap[fileName] || null;
 
                         if (!focusPosition) {
                             // Check filename for focus hints
