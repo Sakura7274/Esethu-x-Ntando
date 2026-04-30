@@ -69,32 +69,75 @@
             const GITHUB_PHOTOS_API = `https://api.github.com/repos/${GITHUB_REPO_OWNER}/${GITHUB_REPO_NAME}/contents/photos`;
             const supportedPhotoExtensions = ['jpg', 'jpeg', 'png', 'webp', 'svg'];
 
-            // Manually configure the exact order of photos here.
-            const manualPhotoOrder = [
-                'photo1.jpg',
-                'photo6.jpg',
-                'photo9.jpg'
-            ];
+      // Manually configure the exact order of photos here.
+const manualPhotoOrder = [
+    'photo1.jpg',
+    'photo4.jpg',
+    'photo2.jpg',
+    'photo6.jpg',
+    'photo7.jpg',
+    'photo3.jpg',
+    'photo8.jpg',
+    'photo9.jpg',
+    'photo10.jpg',
+    'photo11.jpg',
+    'photo12.jpg',
+    'photo13.jpg',
+    'photo14.jpg',
+    'photo5.jpg',
+    'photo15.jpg',
+    'photo16.jpg',
+    'photo17.jpg',
+    'photo18.jpg',
+    'photo19.jpg',
+    'photo20.jpg',
+    'photo21.jpg',
+    'photo22.jpg',
+    'photo23.jpg',
+    'photo24.jpg',
+    'photo25.jpg',
+    'photo26.jpg',
+    'photo27.jpg',
+    'photo28.jpg',
+    'photo29.jpg'
+];
 
-            // Direct focus map for precise cropping control.
-            // Use exact filename keys and any valid CSS object-position value.
-            const focusMap = {
-                'photo1.jpg': '50% 0%',
-    'photo5.jpg': '50% 65%',
-    'photo12.jpg': '30% 50%',
-    'photo21.jpg': '50% 62%',
+// Direct focus map for precise cropping control.
+// Use exact filename keys and any valid CSS object-position value.
+const focusMap = {
+    'photo1.jpg': '50% 0%',
+    'photo21.jpg': '50% 63%',
     'photo29.jpg': '50% 81%'
-            };
+};
 
-            // Zoom levels for photos (100 = normal size, <100 = zoom out, >100 = zoom in)
-            const zoomMap = {
-                // Add zoom levels here when needed
-            };
+// Zoom levels for photos (100 = normal size, <100 = zoom out, >100 = zoom in)
+const zoomMap = {
+    'photo2.jpg': 104,
+    'photo7.jpg': 107,
+    'photo5.jpg': 97
+};
 
-            // Size/orientation for each photo (size-1 = normal, size-2 = wide, size-3 = tall)
-            const sizeMap = {
-                // Add size overrides here when needed
-            };
+// Size/orientation for each photo (size-1 = normal, size-2 = wide, size-3 = tall)
+const sizeMap = {
+    'photo4.jpg': 'size-3',
+    'photo2.jpg': 'size-3',
+    'photo7.jpg': 'size-3',
+    'photo3.jpg': 'size-3',
+    'photo8.jpg': 'size-3',
+    'photo12.jpg': 'size-3',
+    'photo13.jpg': 'size-3',
+    'photo5.jpg': 'size-3',
+    'photo15.jpg': 'size-2',
+    'photo16.jpg': 'size-3',
+    'photo18.jpg': 'size-2',
+    'photo20.jpg': 'size-3',
+    'photo21.jpg': 'size-2',
+    'photo23.jpg': 'size-2',
+    'photo24.jpg': 'size-3',
+    'photo26.jpg': 'size-2',
+    'photo28.jpg': 'size-3',
+    'photo29.jpg': 'size-2'
+};
 
             const normalizedFocusMap = Object.fromEntries(
                 Object.entries(focusMap).map(([key, value]) => [key.toLowerCase(), value])
