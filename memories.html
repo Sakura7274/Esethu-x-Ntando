@@ -68,6 +68,15 @@
             const GITHUB_PHOTOS_API = `https://api.github.com/repos/${GITHUB_REPO_OWNER}/${GITHUB_REPO_NAME}/contents/photos`;
             const supportedPhotoExtensions = ['jpg', 'jpeg', 'png', 'webp', 'svg'];
 
+            // Direct focus map for precise cropping control.
+            // Use exact filename keys and any valid CSS object-position value.
+            const focusMap = {
+                // Example:
+                // 'photo1.jpg': '20% 30%',
+                // 'photo2.jpg': 'center top',
+                // 'photo3.jpg': 'right bottom',
+            };
+
             fetch(GITHUB_PHOTOS_API)
                 .then(response => {
                     if (!response.ok) {
@@ -103,34 +112,38 @@
                         const sizeClass = ['size-1', 'size-2', 'size-1', 'size-3', 'size-2', 'size-1', 'size-2', 'size-3'][index % 8];
                         collageItem.classList.add(sizeClass);
 
-                        // Vary focus/cropping position in a pattern or based on filename
-                        let focusPosition = 'center'; // default
-                        
-                        // Check filename for focus hints
+                        // Determine focus using direct map, filename hints, or fallback pattern.
                         const fileName = file.name.toLowerCase();
-                        if (fileName.includes('focus_top') || fileName.includes('_top')) {
-                            focusPosition = 'top';
-                        } else if (fileName.includes('focus_bottom') || fileName.includes('_bottom')) {
-                            focusPosition = 'bottom';
-                        } else if (fileName.includes('focus_left') || fileName.includes('_left')) {
-                            focusPosition = 'left';
-                        } else if (fileName.includes('focus_right') || fileName.includes('_right')) {
-                            focusPosition = 'right';
-                        } else if (fileName.includes('focus_center') || fileName.includes('_center')) {
-                            focusPosition = 'center';
-                        } else {
-                            // Use pattern for photos without specific focus hints
-                            const focusPositions = [
-                                'center',      // default center focus
-                                'top',         // focus on top of photo
-                                'bottom',      // focus on bottom of photo
-                                'left',        // focus on left side
-                                'right',       // focus on right side
-                                '20% 80%',    // focus on bottom-left area
-                                '80% 20%',    // focus on top-right area
-                                'center top'   // focus on center-top
-                            ];
-                            focusPosition = focusPositions[index % focusPositions.length];
+                        const mappedFocus = Object.keys(focusMap)
+                            .find(key => key.toLowerCase() === fileName);
+                        let focusPosition = mappedFocus ? focusMap[mappedFocus] : null;
+
+                        if (!focusPosition) {
+                            // Check filename for focus hints
+                            if (fileName.includes('focus_top') || fileName.includes('_top')) {
+                                focusPosition = 'top';
+                            } else if (fileName.includes('focus_bottom') || fileName.includes('_bottom')) {
+                                focusPosition = 'bottom';
+                            } else if (fileName.includes('focus_left') || fileName.includes('_left')) {
+                                focusPosition = 'left';
+                            } else if (fileName.includes('focus_right') || fileName.includes('_right')) {
+                                focusPosition = 'right';
+                            } else if (fileName.includes('focus_center') || fileName.includes('_center')) {
+                                focusPosition = 'center';
+                            } else {
+                                // Use pattern for photos without specific focus hints
+                                const focusPositions = [
+                                    'center',      // default center focus
+                                    'top',         // focus on top of photo
+                                    'bottom',      // focus on bottom of photo
+                                    'left',        // focus on left side
+                                    'right',       // focus on right side
+                                    '20% 80%',     // focus on bottom-left area
+                                    '80% 20%',     // focus on top-right area
+                                    'center top'   // focus on center-top
+                                ];
+                                focusPosition = focusPositions[index % focusPositions.length];
+                            }
                         }
 
                         const img = document.createElement('img');
