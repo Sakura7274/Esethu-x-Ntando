@@ -267,12 +267,12 @@ const sizeMap = {
                         return;
                     }
 
-                    images = photoFiles.map(file => ({
+                    const orderedPhotoFiles = applyManualOrder(photoFiles);
+                    images = orderedPhotoFiles.map(file => ({
                         src: file.download_url,
                         caption: file.name
                     }));
 
-                    const orderedPhotoFiles = applyManualOrder(photoFiles);
                     renderCollage(orderedPhotoFiles);
 
                     function showLightbox() {
