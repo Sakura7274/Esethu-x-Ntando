@@ -82,8 +82,17 @@
                 'photo1.jpg': '58% 50%'
             };
 
+            // Zoom levels for photos (100 = normal size)
+            const zoomMap = {
+                // Add zoom levels here when needed
+            };
+
             const normalizedFocusMap = Object.fromEntries(
                 Object.entries(focusMap).map(([key, value]) => [key.toLowerCase(), value])
+            );
+
+            const normalizedZoomMap = Object.fromEntries(
+                Object.entries(zoomMap).map(([key, value]) => [key.toLowerCase(), value])
             );
 
             const fallbackFocusPositions = [
@@ -133,6 +142,7 @@
 
                     const fileName = file.name.toLowerCase();
                     let focusPosition = normalizedFocusMap[fileName] || null;
+                    let zoomLevel = normalizedZoomMap[fileName] || 100;
 
                     if (!focusPosition) {
                         if (fileName.includes('focus_top') || fileName.includes('_top')) {
@@ -158,6 +168,8 @@
                     img.src = file.download_url;
                     img.alt = file.name;
                     img.style.objectPosition = focusPosition;
+                    img.style.transform = `scale(${zoomLevel / 100})`;
+                    img.style.transformOrigin = 'center center';
 
                     collageItem.appendChild(img);
                     collageItem.onclick = function(e) {
