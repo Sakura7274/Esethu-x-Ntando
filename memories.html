@@ -76,10 +76,13 @@
                     return response.json();
                 })
                 .then(files => {
-                    const photoFiles = files.filter(file => 
+                    let photoFiles = files.filter(file => 
                         file.type === 'file' && 
                         supportedPhotoExtensions.some(ext => file.name.toLowerCase().endsWith(ext))
                     );
+
+                    // Keep photo order stable by sorting deterministically by filename
+                    photoFiles.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }));
 
                     if (photoFiles.length === 0) {
                         collageContainer.innerHTML = '<p>No photos found yet.</p>';
