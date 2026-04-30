@@ -91,7 +91,7 @@
                         caption: file.name
                     }));
 
-                    // Create collage items with varying sizes
+                    // Create collage items with varying sizes and focus positions
                     photoFiles.forEach((file, index) => {
                         const collageItem = document.createElement('div');
                         collageItem.className = 'collage-item';
@@ -100,9 +100,40 @@
                         const sizeClass = ['size-1', 'size-2', 'size-1', 'size-3', 'size-2', 'size-1', 'size-2', 'size-3'][index % 8];
                         collageItem.classList.add(sizeClass);
 
+                        // Vary focus/cropping position in a pattern or based on filename
+                        let focusPosition = 'center'; // default
+                        
+                        // Check filename for focus hints
+                        const fileName = file.name.toLowerCase();
+                        if (fileName.includes('focus_top') || fileName.includes('_top')) {
+                            focusPosition = 'top';
+                        } else if (fileName.includes('focus_bottom') || fileName.includes('_bottom')) {
+                            focusPosition = 'bottom';
+                        } else if (fileName.includes('focus_left') || fileName.includes('_left')) {
+                            focusPosition = 'left';
+                        } else if (fileName.includes('focus_right') || fileName.includes('_right')) {
+                            focusPosition = 'right';
+                        } else if (fileName.includes('focus_center') || fileName.includes('_center')) {
+                            focusPosition = 'center';
+                        } else {
+                            // Use pattern for photos without specific focus hints
+                            const focusPositions = [
+                                'center',      // default center focus
+                                'top',         // focus on top of photo
+                                'bottom',      // focus on bottom of photo
+                                'left',        // focus on left side
+                                'right',       // focus on right side
+                                '20% 80%',    // focus on bottom-left area
+                                '80% 20%',    // focus on top-right area
+                                'center top'   // focus on center-top
+                            ];
+                            focusPosition = focusPositions[index % focusPositions.length];
+                        }
+
                         const img = document.createElement('img');
                         img.src = file.download_url;
                         img.alt = file.name;
+                        img.style.objectPosition = focusPosition;
                         
                         collageItem.appendChild(img);
                         
