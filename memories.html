@@ -24,14 +24,6 @@
         <div class="container">
             <h1 class="memories-title">Our Beautiful Memories</h1>
             <p class="memories-subtitle">Click any photo to view it in full size</p>
-
-            <section class="order-editor">
-                <h2>Manual Photo Order</h2>
-                <p>Paste exact filenames in the order you want them to appear, one per line.</p>
-                <textarea id="manual-order-input" placeholder="photo1.jpg\nphoto2.jpg\nphoto3.jpg"></textarea>
-                <button id="apply-order-btn" type="button">Apply Order</button>
-                <p class="order-note">The order is saved locally in this browser and will be applied instantly.</p>
-            </section>
             
             <!-- Collage Grid -->
             <div class="collage-container" id="collage-container">
@@ -76,9 +68,13 @@
             const GITHUB_REPO_NAME = 'Esethu-x-Ntando';
             const GITHUB_PHOTOS_API = `https://api.github.com/repos/${GITHUB_REPO_OWNER}/${GITHUB_REPO_NAME}/contents/photos`;
             const supportedPhotoExtensions = ['jpg', 'jpeg', 'png', 'webp', 'svg'];
-            const orderStorageKey = 'memoriesManualOrder';
-            const orderInput = document.getElementById('manual-order-input');
-            const applyOrderBtn = document.getElementById('apply-order-btn');
+
+            // Manually configure the exact order of photos here.
+            const manualPhotoOrder = [
+                'photo1.jpg',
+                'photo6.jpg',
+                'photo9.jpg'
+            ];
 
             // Direct focus map for precise cropping control.
             // Use exact filename keys and any valid CSS object-position value.
@@ -104,12 +100,7 @@
             ];
 
             function getManualOrder() {
-                if (!orderInput) return [];
-                return orderInput.value
-                    .split('\n')
-                    .map(line => line.trim())
-                    .filter(Boolean)
-                    .map(line => line.toLowerCase());
+                return manualPhotoOrder.map(name => name.toLowerCase());
             }
 
             function applyManualOrder(files) {
@@ -127,14 +118,6 @@
                 });
 
                 return ordered.concat(remaining);
-            }
-
-            function loadSavedOrder() {
-                if (!orderInput) return;
-                const savedValue = localStorage.getItem(orderStorageKey);
-                if (savedValue) {
-                    orderInput.value = savedValue;
-                }
             }
 
             function renderCollage(files) {
@@ -189,17 +172,6 @@
                 });
             }
 
-            loadSavedOrder();
-            if (applyOrderBtn) {
-                applyOrderBtn.addEventListener('click', function() {
-                    localStorage.setItem(orderStorageKey, orderInput.value);
-                    if (photoFiles.length) {
-                        const orderedFiles = applyManualOrder(photoFiles);
-                        renderCollage(orderedFiles);
-                    }
-                });
-            }
-
             fetch(GITHUB_PHOTOS_API)
                 .then(response => {
                     if (!response.ok) {
@@ -208,7 +180,7 @@
                     return response.json();
                 })
                 .then(files => {
-                    photoFiles = files.filter(file => 
+                    let photoFiles = files.filter(file => 
                         file.type === 'file' && 
                         supportedPhotoExtensions.some(ext => file.name.toLowerCase().endsWith(ext))
                     );
@@ -221,8 +193,67 @@
                         return;
                     }
 
-                    photoFiles = applyManualOrder(photoFiles);
-                    renderCollage(photoFiles);
+                    images = photoFiles.map(file => ({
+                        src: file.download_url,
+                        caption: file.name
+                    }));
+
+                    // Create collage items with varying sizes and focus positions
+                    photoFiles.forEach((file, index) => {
+                        const collageItem = document.createElement('div');
+                        collageItem.className = 'collage-item';
+                        
+                        // Vary sizes in a pattern
+                        const sizeClass = ['size-1', 'size-2', 'size-1', 'size-3', 'size-2', 'size-1', 'size-2', 'size-3'][index % 8];
+                        collageItem.classList.add(sizeClass);
+
+                        // Determine focus using direct map, filename hints, or fallback pattern.
+                        const fileName = file.name.toLowerCase();
+                        let focusPosition = normalizedFocusMap[fileName] || null;
+
+                        if (!focusPosition) {
+                            // Check filename for focus hints
+                            if (fileName.includes('focus_top') || fileName.includes('_top')) {
+                                focusPosition = 'top';
+                            } else if (fileName.includes('focus_bottom') || fileName.includes('_bottom')) {
+                                focusPosition = 'bottom';
+                            } else if (fileName.includes('focus_left') || fileName.includes('_left')) {
+                                focusPosition = 'left';
+                            } else if (fileName.includes('focus_right') || fileName.includes('_right')) {
+                                focusPosition = 'right';
+                            } else if (fileName.includes('focus_center') || fileName.includes('_center')) {
+                                focusPosition = 'center';
+                            } else {
+                                // Use pattern for photos without specific focus hints
+                                const focusPositions = [
+                                    'center',      // default center focus
+                                    'top',         // focus on top of photo
+                                    'bottom',      // focus on bottom of photo
+                                    'left',        // focus on left side
+                                    'right',       // focus on right side
+                                    '20% 80%',     // focus on bottom-left area
+                                    '80% 20%',     // focus on top-right area
+                                    'center top'   // focus on center-top
+                                ];
+                                focusPosition = focusPositions[index % focusPositions.length];
+                            }
+                        }
+
+                        const img = document.createElement('img');
+                        img.src = file.download_url;
+                        img.alt = file.name;
+                        img.style.objectPosition = focusPosition;
+                        
+                        collageItem.appendChild(img);
+                        
+                        collageItem.onclick = function(e) {
+                            e.stopPropagation();
+                            currentImageIndex = index;
+                            showLightbox();
+                        };
+
+                        collageContainer.appendChild(collageItem);
+                    });
 
                     function showLightbox() {
                         lightbox.classList.add('active');
