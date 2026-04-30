@@ -480,6 +480,58 @@ body {
     font-size: 1rem;
 }
 
+/* Photo Order Editor */
+.order-editor {
+    background: white;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+}
+
+.order-editor h2 {
+    margin-bottom: 0.75rem;
+    color: #c44569;
+}
+
+.order-editor p {
+    margin-bottom: 1rem;
+    color: #555;
+}
+
+.order-editor textarea {
+    width: 100%;
+    min-height: 140px;
+    padding: 1rem;
+    border-radius: 12px;
+    border: 1px solid #ddd;
+    background: #fff;
+    color: #333;
+    resize: vertical;
+    font-family: inherit;
+    margin-bottom: 1rem;
+}
+
+.order-editor button {
+    background: #c44569;
+    color: white;
+    border: none;
+    padding: 0.9rem 1.4rem;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.25s ease;
+}
+
+.order-editor button:hover {
+    background: #a53f61;
+}
+
+.order-note {
+    color: #777;
+    margin-top: 0.75rem;
+    font-size: 0.95rem;
+}
+
 /* Collage Container */
 .collage-container {
     display: grid;
@@ -488,11 +540,6 @@ body {
     max-width: 1400px;
     margin: 0 auto;
     grid-auto-rows: 200px;
-
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease, box-shadow 0.3s ease, filter 0.3s ease;
-    grid-column: span 1;
-    grid-row: span 1;
 }
 
 /* Vary sizes in the collage */
