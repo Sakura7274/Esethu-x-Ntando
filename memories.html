@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Memories - Ntando & You</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">💕 Our Story</div>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="index.html#about">About Us</a></li>
+                <li><a href="memories.html">Our Memories</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Memories Section -->
+    <section class="memories-page">
+        <div class="container">
+            <h1 class="memories-title">Our Beautiful Memories</h1>
+            <p class="memories-subtitle">Click any photo to view it in full size</p>
+            
+            <!-- Collage Grid -->
+            <div class="collage-container" id="collage-container">
+                <!-- Collage items will be populated here by JavaScript -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Lightbox Modal -->
+    <div id="lightbox" class="lightbox">
+        <span class="close">&times;</span>
+        <img class="lightbox-content" id="lightbox-img">
+        <div id="lightbox-caption"></div>
+        <button class="prev">❮</button>
+        <button class="next">❯</button>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>Made with 💕 for us</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        // Initialize collage on memories page
+        function populateMemoriesCollage() {
+            const collageContainer = document.getElementById('collage-container');
+            const lightbox = document.getElementById('lightbox');
+            const lightboxImg = document.getElementById('lightbox-img');
+            const lightboxCaption = document.getElementById('lightbox-caption');
+            const closeBtn = document.querySelector('.close');
+            const prevBtn = document.querySelector('.prev');
+            const nextBtn = document.querySelector('.next');
+
+            let currentImageIndex = 0;
+            let images = [];
+
+            const GITHUB_REPO_OWNER = 'Sakura7274';
+            const GITHUB_REPO_NAME = 'Esethu-x-Ntando';
+            const GITHUB_PHOTOS_API = `https://api.github.com/repos/${GITHUB_REPO_OWNER}/${GITHUB_REPO_NAME}/contents/photos`;
+            const supportedPhotoExtensions = ['jpg', 'jpeg', 'png', 'webp', 'svg'];
+
+            fetch(GITHUB_PHOTOS_API)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Unable to fetch photos from GitHub.');
+                    }
+                    return response.json();
+                })
+                .then(files => {
+                    const photoFiles = files.filter(file => 
+                        file.type === 'file' && 
+                        supportedPhotoExtensions.some(ext => file.name.toLowerCase().endsWith(ext))
+                    );
+
+                    if (photoFiles.length === 0) {
+                        collageContainer.innerHTML = '<p>No photos found yet.</p>';
+                        return;
+                    }
+
+                    images = photoFiles.map(file => ({
+                        src: file.download_url,
+                        caption: file.name
+                    }));
+
+                    // Create collage items with varying sizes
+                    photoFiles.forEach((file, index) => {
+                        const collageItem = document.createElement('div');
+                        collageItem.className = 'collage-item';
+                        
+                        // Vary sizes in a pattern
+                        const sizeClass = ['size-1', 'size-2', 'size-1', 'size-3', 'size-2', 'size-1', 'size-2', 'size-3'][index % 8];
+                        collageItem.classList.add(sizeClass);
+
+                        const img = document.createElement('img');
+                        img.src = file.download_url;
+                        img.alt = file.name;
+                        
+                        collageItem.appendChild(img);
+                        
+                        collageItem.onclick = function(e) {
+                            e.stopPropagation();
+                            currentImageIndex = index;
+                            showLightbox();
+                        };
+
+                        collageContainer.appendChild(collageItem);
+                    });
+
+                    function showLightbox() {
+                        lightbox.classList.add('active');
+                        lightboxImg.src = images[currentImageIndex].src;
+                        lightboxCaption.textContent = images[currentImageIndex].caption;
+                        document.body.style.overflow = 'hidden';
+                    }
+
+                    function closeLightbox() {
+                        lightbox.classList.remove('active');
+                        document.body.style.overflow = 'auto';
+                    }
+
+                    function nextImage() {
+                        currentImageIndex = (currentImageIndex + 1) % images.length;
+                        showLightbox();
+                    }
+
+                    function prevImage() {
+                        currentImageIndex = (currentImageIndex - 1 + images.length) % images.length;
+                        showLightbox();
+                    }
+
+                    closeBtn.addEventListener('click', closeLightbox);
+                    nextBtn.addEventListener('click', nextImage);
+                    prevBtn.addEventListener('click', prevImage);
+
+                    lightbox.addEventListener('click', function(e) {
+                        if (e.target === lightbox) {
+                            closeLightbox();
+                        }
+                    });
+
+                    document.addEventListener('keydown', function(e) {
+                        if (!lightbox.classList.contains('active')) return;
+                        
+                        switch(e.key) {
+                            case 'ArrowRight':
+                                nextImage();
+                                break;
+                            case 'ArrowLeft':
+                                prevImage();
+                                break;
+                            case 'Escape':
+                                closeLightbox();
+                                break;
+                        }
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading photos:', error);
+                    collageContainer.innerHTML = '<p>Error loading photos. Please try again later.</p>';
+                });
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', populateMemoriesCollage);
+    </script>
+</body>
+</html>

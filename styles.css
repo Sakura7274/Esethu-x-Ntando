@@ -458,3 +458,122 @@ body {
         font-size: 1rem;
     }
 }
+
+/* Memories Page */
+.memories-page {
+    padding: 4rem 2rem;
+    background: linear-gradient(135deg, #fff5f7 0%, #ffe8ed 100%);
+    min-height: calc(100vh - 80px);
+}
+
+.memories-title {
+    font-size: 2.5rem;
+    text-align: center;
+    color: #c44569;
+    margin-bottom: 1rem;
+}
+
+.memories-subtitle {
+    text-align: center;
+    color: #999;
+    margin-bottom: 3rem;
+    font-size: 1rem;
+}
+
+/* Collage Container */
+.collage-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    grid-auto-rows: 200px;
+}
+
+.collage-item {
+    position: relative;
+    overflow: hidden;
+    border-radius: 15px;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease, filter 0.3s ease;
+    grid-column: span 1;
+    grid-row: span 1;
+}
+
+/* Vary sizes in the collage */
+.collage-item.size-1 {
+    grid-column: span 1;
+    grid-row: span 1;
+}
+
+.collage-item.size-2 {
+    grid-column: span 2;
+    grid-row: span 1;
+}
+
+.collage-item.size-3 {
+    grid-column: span 1;
+    grid-row: span 2;
+}
+
+.collage-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.3s ease;
+}
+
+.collage-item:hover {
+    transform: scale(1.02);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    filter: brightness(1.1);
+    z-index: 10;
+}
+
+.collage-item:hover img {
+    transform: scale(1.05);
+}
+
+/* Responsive for Collage */
+@media (max-width: 1024px) {
+    .collage-container {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 0.75rem;
+        grid-auto-rows: 150px;
+    }
+
+    .collage-item.size-2 {
+        grid-column: span 1;
+    }
+
+    .collage-item.size-3 {
+        grid-row: span 1;
+    }
+}
+
+@media (max-width: 768px) {
+    .memories-page {
+        padding: 2rem 1rem;
+    }
+
+    .memories-title {
+        font-size: 1.8rem;
+    }
+
+    .collage-container {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 0.5rem;
+        grid-auto-rows: 120px;
+    }
+
+    .collage-item.size-2 {
+        grid-column: span 1;
+    }
+
+    .prev, .next {
+        padding: 0.5rem 1rem;
+        font-size: 1.2rem;
+    }
+}
