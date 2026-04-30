@@ -313,14 +313,13 @@
                 item.className = `collage-item ${data.size}`;
                 item.dataset.photoName = photoName;
 
-                const img = document.createElement('img');
-                img.src = data.src;
-                img.alt = photoName;
-                img.style.objectPosition = `${data.focusX}% ${data.focusY}%`;
-                img.style.transform = `scale(${data.zoom / 100})`;
-                img.style.transformOrigin = 'center center';
+                // Use background-image approach for consistent zoom behavior
+                item.style.backgroundImage = `url(${data.src})`;
+                item.style.backgroundPosition = `${data.focusX}% ${data.focusY}%`;
+                item.style.backgroundSize = data.zoom < 100 ? 'contain' : `${data.zoom}%`;
+                item.style.backgroundRepeat = 'no-repeat';
+                item.title = photoName;
 
-                item.appendChild(img);
                 item.onclick = () => selectPhoto(photoName);
 
                 collagePreview.appendChild(item);
@@ -370,9 +369,9 @@
             yValue.textContent = data.focusY;
 
             // Update preview
-            const item = document.querySelector(`[data-photo-name="${selectedPhoto}"] img`);
+            const item = document.querySelector(`[data-photo-name="${selectedPhoto}"]`);
             if (item) {
-                item.style.objectPosition = `${data.focusX}% ${data.focusY}%`;
+                item.style.backgroundPosition = `${data.focusX}% ${data.focusY}%`;
             }
         }
 
@@ -386,9 +385,9 @@
             zoomValue.textContent = data.zoom;
 
             // Update preview
-            const item = document.querySelector(`[data-photo-name="${selectedPhoto}"] img`);
+            const item = document.querySelector(`[data-photo-name="${selectedPhoto}"]`);
             if (item) {
-                item.style.transform = `scale(${data.zoom / 100})`;
+                item.style.backgroundSize = data.zoom < 100 ? 'contain' : `${data.zoom}%`;
             }
         }
 
@@ -442,6 +441,7 @@
         function updateCodeOutput() {
             const focusMap = {};
             const zoomMap = {};
+            const sizeMap = {};
             const manualPhotoOrder = [];
 
             photoOrder.forEach(photoName => {
@@ -451,6 +451,9 @@
                 }
                 if (data.zoom !== 100) {
                     zoomMap[photoName] = data.zoom;
+                }
+                if (data.size !== 'size-1') { // Only include non-default sizes
+                    sizeMap[photoName] = data.size;
                 }
                 manualPhotoOrder.push(photoName);
             });
@@ -466,9 +469,14 @@ const focusMap = {
 ${Object.entries(focusMap).map(([key, value]) => `    '${key}': '${value}'`).join(',\n')}
 };
 
-// Zoom levels for photos (100 = normal size)
+// Zoom levels for photos (100 = normal size, <100 = zoom out, >100 = zoom in)
 const zoomMap = {
 ${Object.entries(zoomMap).map(([key, value]) => `    '${key}': ${value}`).join(',\n')}
+};
+
+// Size/orientation for each photo (size-1 = normal, size-2 = wide, size-3 = tall)
+const sizeMap = {
+${Object.entries(sizeMap).map(([key, value]) => `    '${key}': '${value}'`).join(',\n')}
 };`;
 
             codeOutput.textContent = code;

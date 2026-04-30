@@ -86,9 +86,14 @@
     'photo29.jpg': '50% 81%'
             };
 
-            // Zoom levels for photos (100 = normal size)
+            // Zoom levels for photos (100 = normal size, <100 = zoom out, >100 = zoom in)
             const zoomMap = {
                 // Add zoom levels here when needed
+            };
+
+            // Size/orientation for each photo (size-1 = normal, size-2 = wide, size-3 = tall)
+            const sizeMap = {
+                // Add size overrides here when needed
             };
 
             const normalizedFocusMap = Object.fromEntries(
@@ -97,6 +102,10 @@
 
             const normalizedZoomMap = Object.fromEntries(
                 Object.entries(zoomMap).map(([key, value]) => [key.toLowerCase(), value])
+            );
+
+            const normalizedSizeMap = Object.fromEntries(
+                Object.entries(sizeMap).map(([key, value]) => [key.toLowerCase(), value])
             );
 
             const fallbackFocusPositions = [
@@ -141,10 +150,12 @@
                 files.forEach((file, index) => {
                     const collageItem = document.createElement('div');
                     collageItem.className = 'collage-item';
-                    const sizeClass = ['size-1', 'size-2', 'size-1', 'size-3', 'size-2', 'size-1', 'size-2', 'size-3'][index % 8];
+                    
+                    const fileName = file.name.toLowerCase();
+                    const customSize = normalizedSizeMap[fileName];
+                    const sizeClass = customSize || ['size-1', 'size-2', 'size-1', 'size-3', 'size-2', 'size-1', 'size-2', 'size-3'][index % 8];
                     collageItem.classList.add(sizeClass);
 
-                    const fileName = file.name.toLowerCase();
                     let focusPosition = normalizedFocusMap[fileName] || null;
                     let zoomLevel = normalizedZoomMap[fileName] || 100;
 
@@ -168,14 +179,14 @@
                         focusPosition = 'center';
                     }
 
-                    const img = document.createElement('img');
-                    img.src = file.download_url;
-                    img.alt = file.name;
-                    img.style.objectPosition = focusPosition;
-                    img.style.transform = `scale(${zoomLevel / 100})`;
-                    img.style.transformOrigin = 'center center';
-
-                    collageItem.appendChild(img);
+                    // Use background-image approach for better zoom control
+                    collageItem.style.backgroundImage = `url(${file.download_url})`;
+                    collageItem.style.backgroundPosition = focusPosition;
+                    collageItem.style.backgroundSize = zoomLevel < 100 ? 'contain' : `${zoomLevel}%`;
+                    collageItem.style.backgroundRepeat = 'no-repeat';
+                    
+                    // Add title for accessibility
+                    collageItem.title = file.name;
                     collageItem.onclick = function(e) {
                         e.stopPropagation();
                         currentImageIndex = index;
