@@ -271,13 +271,14 @@ const sizeMap = {
                         const collageItem = document.createElement('div');
                         collageItem.className = 'collage-item';
                         
-                        // Vary sizes in a pattern
-                        const sizeClass = ['size-1', 'size-2', 'size-1', 'size-3', 'size-2', 'size-1', 'size-2', 'size-3'][index % 8];
+                        const fileName = file.name.toLowerCase();
+                        const customSize = normalizedSizeMap[fileName];
+                        const sizeClass = customSize || ['size-1', 'size-2', 'size-1', 'size-3', 'size-2', 'size-1', 'size-2', 'size-3'][index % 8];
                         collageItem.classList.add(sizeClass);
 
                         // Determine focus using direct map, filename hints, or fallback pattern.
-                        const fileName = file.name.toLowerCase();
                         let focusPosition = normalizedFocusMap[fileName] || null;
+                        let zoomLevel = normalizedZoomMap[fileName] || 100;
 
                         if (!focusPosition) {
                             // Check filename for focus hints
@@ -307,12 +308,18 @@ const sizeMap = {
                             }
                         }
 
-                        const img = document.createElement('img');
-                        img.src = file.download_url;
-                        img.alt = file.name;
-                        img.style.objectPosition = focusPosition;
+                        if (!focusPosition) {
+                            focusPosition = 'center';
+                        }
+
+                        // Use background-image approach for better zoom control
+                        collageItem.style.backgroundImage = `url(${file.download_url})`;
+                        collageItem.style.backgroundPosition = focusPosition;
+                        collageItem.style.backgroundSize = zoomLevel < 100 ? 'contain' : `${zoomLevel}%`;
+                        collageItem.style.backgroundRepeat = 'no-repeat';
                         
-                        collageItem.appendChild(img);
+                        // Add title for accessibility
+                        collageItem.title = file.name;
                         
                         collageItem.onclick = function(e) {
                             e.stopPropagation();
